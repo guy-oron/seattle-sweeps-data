@@ -1,2 +1,2 @@
-**Complaint Logs
+**Complaint Logs**
 These logs, obtained via public records requests to the City of Seattle Customer Service Division, which is housed under the Financial and Administrative Services department, contain a list of complaints sent to the city about visible homelessness and specifically encampments, tents and vehicles used by unhoused residents as shelter. Most of the complaints were sent via the city's Find It Fix It app. The logs were received anonymized.
