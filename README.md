@@ -1,6 +1,7 @@
 # Seattle Sweeps Open Data Repository
 This is a public, open data repository containing data on Seattle's policies of displacement against unhoused people, commonly known as sweeps. All documents and files were originally created by city officials and obtained by public disclosure requests to the city of Seattle under Washington state's Public Records Act (RCW 42.56). 
 <br>
+<br>
 **Why create this repository?**
 The goal of this repository is create an easily accessible public portal for accessing quantitative data about Seattle's sweeps policies. Over the years, I have recieved inquiries from researchers, advocates and fellow journalists about this data. This feels like the best way to make minimize gatekeeping while also making the data easy to access and understand.
 <br>
