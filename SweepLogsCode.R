@@ -1,10 +1,12 @@
-#Description, documentation
-
+#This script creates a master list of removals of unhoused people's tents, encampments and vehicles in Seattle, conducted by the city government.
+#This displacement, commonly known as "sweeps," were recorded in different logs that have obtain by public disclosure requests.
+#The code below outlines the methodology of combining the various logs and removing errors and duplicates.
+#These numbers should be taken as estimates and not absolutely accurate
+#Code by Guy Oron
 
 #Import libraries
 library(data.table) #Easier to work with
 library(dplyr) #Important functions
-library(tsibble) #yearweek function
 
 #Set path to correct path
 setwd("C:/Users/Guy/Documents/R/Repository/")
@@ -19,7 +21,7 @@ Uct_1 <- fread("SweepLogs/CSV/Sweeps2022_UCT.csv")
 Uct_2 <- fread("SweepLogs/CSV/Sweeps2023_UCT.csv")
 
 ###Clean data, assign new columns###
-#Clean first SERIS log. Spans from 2008 to 2017, obtained by Real Change reporters Aaron Burkhalter and Ashley Archibald
+#Clean first SERIS log. Spans from 2008 to 2017, obtained by former Real Change reporter and editor Aaron Burkhalter
 #Creating columns consistent across different logs
 Seris_1 <- distinct(Seris_1) #Remove blanks/duplicates
 Seris_1[,SweepDate:=as.Date(Cleanup_1, "%m/%d/%Y")] #Convert to date format
@@ -129,12 +131,16 @@ MasterLog <- as.data.table(MasterLog[,c("SweepID", "SweepDate", "SweepLocation",
 MasterLog <- distinct(MasterLog)
 
 
-#Create variablews by year, week and month
+#Create variables by year, week and month
 MasterLog[,SweepYear:=year(SweepDate)]
 MasterLog[,SweepMonth:=month(SweepDate)]
-MasterLog[,SweepWeek:=yearweek(SweepDate)]
+MasterLog[,SweepWeek:=week(SweepDate)]
 
-SweepYearHist <- as.data.table(table(MasterLog$SweepYear))
+#Create a simple yearly count spreadsheet
+SweepsByYear <- as.data.table(table(MasterLog$SweepYear))
+setnames(SweepsByYear, "V1", "Year") #Rename columns
+setnames(SweepsByYear, "N", "SweepCount")
 
 #Export
-#fwrite(MasterLog, "Sweeps2008-2023_Combined.csv")
+fwrite(MasterLog, "Sweeps2008-2023_Combined.csv")
+fwrite(SweepsByYear, "SweepsByYear.csv")
