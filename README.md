@@ -27,6 +27,7 @@ The raw data for the master list of sweeps is found in the RemovalLogs folder, a
 <br>
 I (Guy Oron) created this repository. I am a Seattle-based writer and journalist, currently working for Real Change as its staff reporter. You can find me and my work on my various social media channels as well as [my newsletter Gossip Guy]([url](https://gossipguy.net/)).
 <br>
+<br>
 I want to give special thanks to Aaron Burkhalter, a former Real Change former editor and reporter, for providing me the spreadsheet of data for sweeps between 2008 and 2017. If he had not retrieved that list, it would have probably been deleted permanently.
 <br>
 <br>
