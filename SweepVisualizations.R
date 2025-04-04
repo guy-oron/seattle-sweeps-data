@@ -1,6 +1,7 @@
 #This script uses data from the master log of sweeps to create charts with ggplot2, a visualization package
 #This is just a small sample of the ways the data could be used. Feel free to make your own charts/visualizations!
 #By Guy Oron
+#Last updated April 3, 2025
 
 #Import libraries
 library(data.table) #Easier to work with
@@ -11,6 +12,7 @@ library(Cairo) #better anti-aliasing
 library(showtext) #custom fonts
 library(ggrepel) #helps with labels for graphs
 library(png) #for importing logo
+library(jpeg) #for importing potraits for mayoral chart
 library(grid) #for adding logo
 
 #Set path to correct path
@@ -55,12 +57,26 @@ theme_gossip <- function() {
 }
 
 #Import logo for graphs. Probably way easier to add logos in another program like Canva or photoshop
-logo <- rasterGrob(readPNG("GossipGuyLogo.png", native = TRUE))
+logo <- rasterGrob(readPNG("Visualizations/GossipGuyLogo.png", native = TRUE))
+
+#Import Mayor's portraits
+nickelsPic <- rasterGrob(readJPEG("Visualizations/MayorPortraits/nickelspic.jpg", native = TRUE))
+mcGinnPic <- rasterGrob(readJPEG("Visualizations/MayorPortraits/mcginnpic.jpg", native = TRUE))
+murrayPic <- rasterGrob(readJPEG("Visualizations/MayorPortraits/murraypic.jpg", native = TRUE))
+burgessPic <- rasterGrob(readJPEG("Visualizations/MayorPortraits/burgesspic.jpg", native = TRUE))
+durkanPic <- rasterGrob(readJPEG("Visualizations/MayorPortraits/durkanpic.jpg", native = TRUE))
+harrellPic<- rasterGrob(readJPEG("Visualizations/MayorPortraits/harrellpic.jpg", native = TRUE))
 
 #Import the logs we created in the other script
-MasterLog <- fread("Sweeps2008-2023_Combined.csv")
+MasterLog <- fread("Sweeps2008-2024_Combined.csv")
 SweepsByYear <- fread("SweepsByYear.csv")
+SweepsByMayor <- fread("SweepsByMayor.csv")
 
+#Set correct order of mayoral admins
+SweepsByMayor <- SweepsByMayor[c(6,4,5,1,2,3),]
+SweepsByMayor[,ColOrder := c(1, 2, 3, 4, 5, 6)]
+SweepsByMayor$Mayor <- factor(SweepsByMayor$Mayor, levels = c("Nickels", "McGinn", "Murray", "Burgess", "Durkan", "Harrell"))
+  
 #Visualize by year and month
 MasterLog[,SweepYearMonth:=yearmonth(SweepDate)] #create yearmonth column with tsibble function
 
@@ -78,17 +94,17 @@ lineChartYearly <- ggplot(SweepsByYear, mapping = aes(x = Year, y = SweepCount))
   #Add labels for the yearly sweep counts
   #ggrepel package has useful function for text labels so they don't overlap with rest of graph
   geom_text_repel(aes(label = SweepCount), color = m_g, family = "Poppins", fontface = "plain", size = 10,
-                  force = 110, force_pull = 20, direction = "y") +
+                  force = 10, force_pull = 10, direction = "y", point.padding = unit(1, "lines"), box.padding = unit(.5, "lines")) +
   geom_point(size = 2.5, color = "#682877") + #add dots
-  scale_y_continuous(limits = c(0, 2500), breaks = c(0, 500, 1000, 1500, 2000, 2500)) + #y axis
-  scale_x_continuous(limits = c(2008,2023), breaks = c(2008:2023)) + # x axis
+  scale_y_continuous(limits = c(0, 3000), breaks = c(0, 500, 1000, 1500, 2000, 2500, 3000)) + #y axis
+  scale_x_continuous(limits = c(2008,2024), breaks = c(2008:2024)) + # x axis
   #add labels to chart
   labs(x = "", y = "Number of sweeps", title = "Yearly sweeps of homeless people in Seattle",
-       subtitle = "Public records show the city displaces unhoused people hundreds of times a year",
+       subtitle = "UPDATED : Public records show the city displaces unhoused people thousands of times a year",
        caption = "Chart by Guy Oron. Source: Seattle Sweeps Open Data Repository (https://github.com/guy-oron/seattle-sweeps-data/)") +
   coord_cartesian(clip = "off") + #need to turn off clipping to get logo to work
   #add logo in top right corner. Don't ask me how this works, honestly it would probably be smarter to insert the logo in photoshop
-  annotation_custom(logo, xmin =  2021, xmax = 2025, ymin = 2600, ymax = 3200) 
+  annotation_custom(logo, xmin =  2022, xmax = 2026, ymin = 3120, ymax = 3840) 
   
 
 #Week by Week histogram
@@ -99,15 +115,40 @@ histYMSweeps <- ggplot(SweepsByYM, mapping = aes(x = YearMonth, y = SweepCount))
   scale_x_yearmonth(date_breaks = "1 year", date_labels = "%Y") + #add x axis labels
   scale_y_continuous(breaks = c(0, 50, 100, 150, 200, 250, 300), limits = c(0,300)) + #Set y axis
   #add labels
-  labs(x="", y="Number of sweeps", title = "Sweeps of unhoused people in Seattle, 2008-2023",
-                                      subtitle = "After a pause during COVID, encampment removals have surged to record levels",
+  labs(x="", y="Number of sweeps", title = "Sweeps of unhoused people in Seattle, 2008-2024",
+                                      subtitle = "UPDATED : After a pause during COVID, encampment removals have surged to record levels",
        caption = "Totals by month. Chart by Guy Oron. Source: Seattle Sweeps Open Data Repository (https://github.com/guy-oron/seattle-sweeps-data/)") +
   coord_cartesian(clip = "off") + #need to turn off clipping to get logo to work
   #add logo in top right corner
-  annotation_custom(logo, xmin = as.Date(yearmonth("11-2022", format = "%m-%Y")), xmax = as.Date(yearmonth("2-2025", format = "%m-%Y")),
+  annotation_custom(logo, xmin = as.Date(yearmonth("11-2023", format = "%m-%Y")), xmax = as.Date(yearmonth("2-2026", format = "%m-%Y")),
                     ymin = 312, ymax = 384) 
-
+#Mayoral bar chart
+#This chart shows how many sweeps were carried out by each mayoral administration
+mayoralChart <- ggplot(data = SweepsByMayor, aes(x = Mayor, y = SweepCount, label = SweepCount)) +
+  geom_col(fill = "#b2baf7", width = 0.8) + #add columns for column chart
+  theme_gossip() + #add custom style
+  scale_y_continuous(breaks = c(0, 1000, 2000, 3000, 4000, 5000, 6000), limits = c(0, 7000)) + #add y axis labels
+  #add labels
+  labs(x="", y="Number of sweeps", title = "Which mayor displaced the most homeless people?",
+       subtitle = "Seattle Mayor Bruce Harrell has overseen an sharp increase in sweeps",
+       caption = "Data from 2008 to 2024. Chart by Guy Oron. Source: Seattle Sweeps Open Data Repository. Photo credits: Joe Mabel, Ryan Georgi, City of Seattle") +
+  #Add label with precise number of sweeps per mayor
+  geom_text(position = position_stack(vjust = 0.5), size = 12, color = "black", family = "Poppins", fontface = "plain") +
+  coord_cartesian(clip = "off") + #need to turn off clipping to get logo to work
+  #Harrell portrait placed here so that it is layered under logo
+  annotation_custom(harrellPic, xmin = 5.5, xmax = 6.5, ymin = 6000, ymax = 8000) +
+  #add logo in top right corner
+  annotation_custom(logo, xmin = 5.7625, xmax = 6.8725, ymin = 7280, ymax = 8980) +
+  #add mayor's portraits to chart
+  annotation_custom(nickelsPic, xmin = 0.5, xmax = 1.5, ymin = 500, ymax = 2500 ) +
+  annotation_custom(mcGinnPic, xmin = 1.5, xmax = 2.5, ymin = 1000, ymax = 3000) +
+  annotation_custom(murrayPic, xmin = 2.5, xmax = 3.5, ymin = 2000, ymax = 4000) +
+  annotation_custom(burgessPic, xmin = 3.5, xmax = 4.5, ymin = 500, ymax = 2500) +
+  annotation_custom(durkanPic, xmin = 4.5, xmax = 5.5, ymin = 2000, ymax = 4000) +
+  #make the mayors' names bolder
+  theme(axis.text.x.bottom = element_text(size = 18 * 2, family = "Poppins", face = "bold", color = "black"))
 
 #export charts
-ggsave("LineChart.png",plot=lineChartYearly, units="px", type = "cairo", width=5760/2, height=3240/2)
-ggsave("HistogramChart.png",plot=histYMSweeps, units="px", type = "cairo", width=5760/2, height=3240/2)
+ggsave("Visualizations/LineChartv2.png",plot=lineChartYearly, units="px", type = "cairo", width=5760/2, height=3240/2)
+ggsave("Visualizations/HistogramChartv2.png",plot=histYMSweeps, units="px", type = "cairo", width=5760/2, height=3240/2)
+ggsave("Visualizations/MayoralChartv1.png",plot=mayoralChart, units="px", type = "cairo", width=5760/2, height=3240/2)
