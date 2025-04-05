@@ -28,7 +28,7 @@ The raw data for the master list of sweeps is found in the RemovalLogs folder, a
 I (Guy Oron) created this repository. I am a Seattle-based writer and journalist, currently working for Real Change as its staff reporter. You can find me and my work on my various social media channels as well as [my newsletter Gossip Guy]([url](https://gossipguy.net/)). Brandon Morande, of the University of Washington Sociology Department, has generously contributed to the repository, adding logs he obtained relating to impounds of vehicles by the city of Seattle.
 <br>
 <br>
-I want to give special thanks to Aaron Burkhalter, a former Real Change former editor and reporter, for providing me the spreadsheet of data for sweeps between 2008 and 2017. If he had not retrieved that list, it would have probably been deleted permanently.
+I want to give special thanks to Ashley Archibald and Aaron Burkhalter, two former Real Change editors and reporters, for providing me the spreadsheet of data for sweeps between 2008 and 2017. If he had not retrieved that list, it would have probably been deleted permanently.
 <br>
 <br>
 
@@ -44,7 +44,13 @@ If you are interested in collaborating or contributing to this repository, pleas
 Version history
 <br>
 <br>
-v1.1 - 22 Jan. 2025
+v1.2 - 4 April 2025
+<br>-Added new removal log for 2024, which was recently obtained.
+<br>-Updated .R code.
+<br>-Added new visualizations and reorganized several folders.
+<br>-Added new columns to master log of sweeps.
+<br>-Fixed several bugs.
+<br><br>v1.1 - 22 Jan. 2025
 <br>-Added new logs of vehicle impounds in new FAS and SPD folders. These logs range from 2014 to 2024 and can help with research of impoundments of homeless people's vehicles. Because they includes all vehicles impounded, the files are quite large.
 <br>-Fixed the 2023 raw excel log, restoring to the original file I recieved via a public records requests. The previous version only had an exported version of the log.
 <br>-Added a data dictionary document from Seattle's customer service bureau explaining the logs of complaints about homeless people.
