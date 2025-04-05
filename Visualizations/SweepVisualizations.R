@@ -1,7 +1,7 @@
 #This script uses data from the master log of sweeps to create charts with ggplot2, a visualization package
 #This is just a small sample of the ways the data could be used. Feel free to make your own charts/visualizations!
 #By Guy Oron
-#Last updated April 3, 2025
+#Last updated April 4, 2025
 
 #Import libraries
 library(data.table) #Easier to work with
