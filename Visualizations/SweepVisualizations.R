@@ -148,7 +148,25 @@ mayoralChart <- ggplot(data = SweepsByMayor, aes(x = Mayor, y = SweepCount, labe
   #make the mayors' names bolder
   theme(axis.text.x.bottom = element_text(size = 18 * 2, family = "Poppins", face = "bold", color = "black"))
 
+#Simple Recent years chart that shows sweeps over the past three years
+recentYearsChart <- ggplot(SweepsByYear[Year >= 2022,], mapping = aes(x = Year, y = SweepCount, label = SweepCount)) +
+  theme_gossip() + #add our theme
+  geom_col(width = 0.8, fill = "#ff6e30" ) + #orange column chart
+  #Add labels for the yearly sweep counts
+  geom_text(position = position_stack(vjust = 0.5), size = 12, color = "black", family = "Poppins", fontface = "plain") +
+  scale_y_continuous(limits = c(0, 2600), breaks = c(0, 500, 1000, 1500, 2000, 2500)) + #y axis
+  scale_x_continuous(breaks = c(2022:2024)) + # x axis
+  #add labels to chart
+  labs(x = "", y = "Number of sweeps",
+      title = "Record levels of displacement in Seattle over last 2 years",
+      subtitle = "Data shows an average of 6.8 sweeps of homeless people a day in 2024",
+      caption = "Chart by Guy Oron. Source: Seattle Sweeps Open Data Repository (https://github.com/guy-oron/seattle-sweeps-data/)") +
+  coord_cartesian(clip = "off") + #need to turn off clipping to get logo to work
+  #add logo in top right corner. Don't ask me how this works, honestly it would probably be smarter to insert the logo in photoshop
+  annotation_custom(logo, xmin =  2023.675, xmax = 2025.125, ymin = 2704, ymax = 3328) 
+
 #export charts
 ggsave("Visualizations/LineChartv2.png",plot=lineChartYearly, units="px", type = "cairo", width=5760/2, height=3240/2)
 ggsave("Visualizations/HistogramChartv2.png",plot=histYMSweeps, units="px", type = "cairo", width=5760/2, height=3240/2)
 ggsave("Visualizations/MayoralChartv1.png",plot=mayoralChart, units="px", type = "cairo", width=5760/2, height=3240/2)
+ggsave("Visualizations/SimpleChartv1.png",plot=recentYearsChart, units="px", type = "cairo", width=5760/2, height=3240/2)
