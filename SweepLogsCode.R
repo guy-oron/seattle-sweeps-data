@@ -3,7 +3,7 @@
 #The code below outlines the methodology of combining the various logs and removing errors and duplicates.
 #These numbers should be taken as estimates and not absolutely accurate
 #Code by Guy Oron
-#Last updated April 3, 2025
+#Last updated September 8, 2025
 
 #Import libraries
 library(data.table) #Easier to work with
@@ -22,6 +22,7 @@ Covid_2 <- fread("SweepLogs/CSV/Sweeps2021_COVID.csv")
 Uct_1 <- fread("SweepLogs/CSV/Sweeps2022_UCT.csv")
 Uct_2 <- fread("SweepLogs/CSV/Sweeps2023_UCT.csv")
 Uct_3 <- fread("SweepLogs/CSV/Sweeps2024_UCT.csv")
+Uct_4 <- fread("SweepLogs/CSV/Sweeps2025_Pt1_UCT.csv")
 
 ###Clean data, assign new columns###
 #Clean first SERIS log. Spans from 2008 to 2017, obtained by former Real Change reporter and editor Aaron Burkhalter
@@ -236,7 +237,7 @@ Uct_2[SweepType == "Obstruction" | SweepType == "RV Remediation", PriorNotice :=
 Uct_2[SweepType == "Notice Given" | SweepType == "72-Hour Notice Sweep", PriorNotice := TRUE]
 
 ###2024 Update###
-#This is the new log obtained for 2024. Very similiar in record keeping method to the 2023 log
+#This is the new log obtained for 2024. Very similar in record keeping method to the 2023 log
 Uct_3 <- distinct(Uct_3) #Remove blanks/duplicates
 
 #Remove non sweeps (i.e.: where outreach led to encampment resolutions). No inspections were included in this list
@@ -267,9 +268,39 @@ Uct_3[,SweepLatitude:=NA]
 Uct_3[SweepType == "Obstruction" | SweepType == "RV Remediation", PriorNotice := FALSE]
 Uct_3[SweepType == "Notice Given" | SweepType == "72-Hour Notice Sweep", PriorNotice := TRUE]
 
+#New log for the first half of 2025
+Uct_4 <- distinct(Uct_4) #Remove blanks/duplicates
+
+#Remove non sweeps (i.e.: where outreach led to encampment resolutions). No inspections were included in this list
+Uct_4 <- Uct_4[!(`Action` %in% "Resolved - By Outreach")]
+
+Uct_4[,SweepDate:=as.Date(`Date of Action`, "%m/%d/%Y")] #Convert to date format
+Uct_4[,SweepID:= paste("H", `Unique ID`, sep = "")] #Copy over unique IDs for every sweep
+Uct_4[,SweepLocation:=`Location Name`] #Assign Location
+Uct_4[,SweepType:=Action] #Assign type of sweep
+
+#Create columns with counts of how many tents, structures or RVs were cleared
+Uct_4[,TentsRemoved:=as.numeric(`Tents Cleared`)] #Copy over tent count 
+Uct_4[,StructuresRemoved:=as.numeric(`Living Structure Count`)] #Copy over structure count
+Uct_4[,VehiclesRemoved:=as.numeric(`RV Count`)] #Copy over RV count
+
+#Align sweep types with those used in previous logs
+Uct_4[SweepType=="Resolved - Obstruction", SweepType := "Obstruction"] 
+Uct_4[SweepType=="Resolved - Advanced Notice Obstruction", SweepType := "Notice Given"] #This appears to be the most appropriate label, given that prior notice was given at these obstruction sweeps
+Uct_4[SweepType=="Resolved - Scheduled", SweepType := "72-Hour Notice Sweep"] 
+
+#Create Latitude and Longitude columns
+#By default, this log doesn't have latitude and longitude coordinates
+Uct_4[,SweepLongitude:=NA]
+Uct_4[,SweepLatitude:=NA]
+
+#Column tracks if prior notice was given to residents before a sweep
+#Sweeps deemed obstructions or did not have prior notice, while some were deemed 72 hour sweeps or labeled "advance notice obstructions"
+Uct_4[SweepType == "Obstruction" | SweepType == "RV Remediation", PriorNotice := FALSE]
+Uct_4[SweepType == "Notice Given" | SweepType == "72-Hour Notice Sweep", PriorNotice := TRUE]
 
 #####Combine all logs#####
-MasterLog <- rbind(Seris_1, Seris_2, Nav, Covid_1, Covid_2, Uct_1, Uct_2, Uct_3, fill = TRUE)
+MasterLog <- rbind(Seris_1, Seris_2, Nav, Covid_1, Covid_2, Uct_1, Uct_2, Uct_3, Uct_4, fill = TRUE)
 
 #Calculations for how many sweeps were carried out in various mayoral administrations
 #Layout dates for when certain mayoral terms occurred. Harrell's term is projected based on the assumption of no relection.
@@ -305,10 +336,42 @@ MasterLog[,SweepYear:=year(SweepDate)]
 MasterLog[,SweepMonth:=month(SweepDate)]
 MasterLog[,SweepWeek:=week(SweepDate)]
 
+#####Export Master Log
+#fwrite(MasterLog, "Sweeps2008-2025_Combined.csv")
+
+#####Additional logs by year
 #Create a simple yearly count spreadsheet
 SweepsByYear <- as.data.table(table(MasterLog$SweepYear))
 setnames(SweepsByYear, "V1", "Year") #Rename columns
 setnames(SweepsByYear, "N", "SweepCount")
+SweepsByYear$Year <- as.numeric(SweepsByYear$Year)
+
+#Remove NAs from removals of tents, etc.
+MasterLog <- MasterLog %>% replace(is.na(.), 0)
+
+#Add rows for tents, structures vehicle removals
+TentsByYear <- as.data.table(MasterLog %>% 
+  group_by(as.numeric(SweepYear)) %>% 
+  summarize(total = sum(TentsRemoved)))
+setnames(TentsByYear, "as.numeric(SweepYear)", "Year")
+setnames(TentsByYear, "total", "TentCount")
+
+StructuresByYear <- as.data.table(MasterLog %>% 
+  group_by(as.numeric(SweepYear)) %>% 
+  summarize(total = sum(StructuresRemoved)))
+setnames(StructuresByYear, "as.numeric(SweepYear)", "Year")
+setnames(StructuresByYear, "total", "StructureCount")
+
+VehiclesByYear <- as.data.table(MasterLog %>% 
+  group_by(as.numeric(SweepYear)) %>% 
+  summarize(total = sum(VehiclesRemoved)))
+setnames(VehiclesByYear, "as.numeric(SweepYear)", "Year")
+setnames(VehiclesByYear, "total", "VehicleCount")
+
+#Merge counts of tents, vehicles, etc. removed
+SweepsByYear <- merge(SweepsByYear, TentsByYear)
+SweepsByYear <- merge(SweepsByYear, StructuresByYear)
+SweepsByYear <- merge(SweepsByYear, VehiclesByYear)
 
 #Create a simple spreadsheet to count the number of sweeps by mayoral administration
 SweepsByMayor <- as.data.table(table(MasterLog$CurrentMayor))
@@ -316,6 +379,5 @@ setnames(SweepsByMayor, "V1", "Mayor") #Rename columns
 setnames(SweepsByMayor, "N", "SweepCount")
 
 #Export data
-fwrite(MasterLog, "Sweeps2008-2024_Combined.csv")
-fwrite(SweepsByYear, "SweepsByYear.csv")
-fwrite(SweepsByMayor, "SweepsByMayor.csv")
+#fwrite(SweepsByYear, "SweepsByYear.csv")
+#fwrite(SweepsByMayor, "SweepsByMayor.csv")
