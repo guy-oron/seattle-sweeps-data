@@ -1,7 +1,7 @@
 #Analysis of records related to belongings taken and stored by Seattle's Unified Care Team (UCT)
 #Time period requested was January 1, 2022 to December 31, 2024
 #Code by Guy Oron
-#Last updated August 18, 2025
+#Last updated September 15, 2025
 
 
 #Import libraries
@@ -17,7 +17,7 @@ library(Cairo)
 setwd("C:/Users/Guy/Documents/R/Repository/")
 
 #import themes from visualizations script
-source("Visualizations/SweepVisualizations.R")
+#source("Visualizations/SweepVisualizations.R")
 
 #Import records
 Storage <- fread("Belongings/UCTStorage.csv")
@@ -70,13 +70,15 @@ DeliveryStats <- as.data.table(table(Deliveries$Outcome))
 setnames(DeliveryStats, "V1", "OutcomeType") #Rename columns
 setnames(DeliveryStats, "N", "Count")
 
-unitChart <- waffle(
-  c(`Delivered` = 27, `Disposed` = 351, `Unknown/Pending` = 9), 
-  rows = 10, colors = c("#93FB98", "#FD6F6F", "lightblue"),
-  glyph_size = 32, 
-  title = "UCT property stats",
-  legend_pos="bottom"
-) + theme_gossip()
+###Optional waffle/icon chart
+#unitChart <- waffle(
+#  c(`Delivered` = 27, `Disposed` = 351, `Unknown/Pending` = 9), 
+#  rows = 10, colors = c("#93FB98", "#FD6F6F", "lightblue"),
+#  glyph_size = 32, 
+#  title = "UCT property stats",
+#  legend_pos="bottom"
+#) + theme_gossip()
 
 #ggsave("Visualizations/PropertyChart.png",plot=unitChart, units="px", type = "cairo", width=5760/2, height=3240/2)
+
 
