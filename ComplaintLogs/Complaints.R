@@ -15,7 +15,7 @@ library(tsibble) #For special date types (e.g. yearmonth)
 setwd("C:/Users/Guy/Documents/R/Repository/")
 
 #Import themes from visualizations script
-source("Visualizations/SweepVisualizations.R")
+#source("Visualizations/SweepVisualizations.R")
 
 ##### 
 #Comment this code which deals with unredacted complaint logs
@@ -126,19 +126,20 @@ ComplaintsByYear$Year <- as.numeric(ComplaintsByYear$Year)
 #Export complaints by year
 fwrite(ComplaintsByYear, "EncampmentComplaints/ComplaintsByYear.csv")
 
-### Some basic visualizations to demonstrate scale of complaints and increasing trend over time
+### Some basic visualizations to demonstrate scale of complaints and increasing trend over time. Optional
 #Yearmonth chart
-complaintsYMChart <- ggplot(ComplaintsYM, mapping=aes(x=YearMonth,y=ComplaintsCount)) + 
-  geom_col(fill=rgb(116,211,255,max=255)) + 
-  scale_x_yearmonth() +
-  scale_y_continuous(breaks = c(0, 1000, 2000, 3000, 4000, 5000)) +
-  labs(x="", y="Number of Complaints") + 
-  theme_gossip()
+#complaintsYMChart <- ggplot(ComplaintsYM, mapping=aes(x=YearMonth,y=ComplaintsCount)) + 
+#  geom_col(fill=rgb(116,211,255,max=255)) + 
+#  scale_x_yearmonth() +
+#  scale_y_continuous(breaks = c(0, 1000, 2000, 3000, 4000, 5000)) +
+#  labs(x="", y="Number of Complaints") + 
+#  theme_gossip()
 
 #Yearly chart
-complaintsYearlyChart <- ggplot(ComplaintsByYear, mapping=aes(x=Year,y=ComplaintsCount)) + 
-  geom_col(fill=rgb(116,211,255,max=255)) + 
-  scale_x_continuous(breaks = c(2019, 2020, 2021, 2022, 2023, 2024)) +
-  scale_y_continuous(breaks = c(0, 10000, 20000, 30000, 40000, 50000)) +
-  labs(x="", y="Number of Complaints") + 
-  theme_gossip()
+#complaintsYearlyChart <- ggplot(ComplaintsByYear, mapping=aes(x=Year,y=ComplaintsCount)) + 
+#  geom_col(fill=rgb(116,211,255,max=255)) + 
+#  scale_x_continuous(breaks = c(2019, 2020, 2021, 2022, 2023, 2024)) +
+#  scale_y_continuous(breaks = c(0, 10000, 20000, 30000, 40000, 50000)) +
+#  labs(x="", y="Number of Complaints") + 
+#  theme_gossip()
+
