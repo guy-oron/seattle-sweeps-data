@@ -108,7 +108,7 @@ setwd("C:/Users/Guy/Documents/R/Repository/")
 #Start here for public code (using log redacted for privacy)
 
 #import master log
-masterLog <- fread("EncampmentComplaints/2019-2024/CSV/MasterLog2019-2024.csv")
+masterLog <- fread("EncampmentComplaints/MasterLog2019-2024.csv") ###Note: This is the only file uploaded to GitHub, for privacy reasons
                   
 
 #Create histogram to count complaints by year and month
@@ -142,4 +142,5 @@ fwrite(ComplaintsByYear, "EncampmentComplaints/ComplaintsByYear.csv")
 #  scale_y_continuous(breaks = c(0, 10000, 20000, 30000, 40000, 50000)) +
 #  labs(x="", y="Number of Complaints") + 
 #  theme_gossip()
+
 
